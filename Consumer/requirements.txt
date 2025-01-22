@@ -1,0 +1,5 @@
+flask
+fastapi==0.68.1    # Web framework for the API
+uvicorn==0.15.0    # ASGI server to run FastAPI
+redis==4.3.4       # Redis client (only needed in non-standalone mode)
+pydantic==1.8.2    # Data validation for FastAPI

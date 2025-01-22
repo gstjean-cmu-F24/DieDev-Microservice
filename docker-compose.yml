@@ -1,0 +1,26 @@
+services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  producer:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.consumer
+    depends_on:
+      - redis
+      - producer
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis

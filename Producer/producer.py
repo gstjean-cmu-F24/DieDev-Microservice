@@ -1,21 +1,40 @@
 # Author: Greenfield Obasi
 # Organization: Carnegie Mellon/DieDev
 
+import os
 import time
 import redis
 import schedule
-import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Configuration Constants
+# Redis connection parameters from environment variables
+REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+SCHEDULE_INTERVAL = int(os.getenv('SCHEDULE_INTERVAL', 5))
+TIMESTAMP_KEY = 'current_timestamp'
 
 
 class TimestampProducer:
-    def __init__(self, redis_host=None, redis_port=6379):
-        """
-        Initialize the TimestampProducer class.
+    """
+    Manages timestamp generation and publishing to Redis.
+    Responsible for periodic timestamp updates.
+    """
 
-        :param redis_host: Hostname of the Redis server (default is 'redis' from environment variable)
-        :param redis_port: Port of the Redis server (default is 6379)
+    def __init__(self, redis_host=None, redis_port=None):
         """
-        redis_host = redis_host or os.getenv('REDIS_HOST', 'redis')
+        Initialize Redis client with configuration from environment variables.
+
+        Args:
+        - redis_host (str, optional): Redis server hostname
+        - redis_port (int, optional): Redis server port
+        """
+        redis_host = redis_host or REDIS_HOST
+        redis_port = redis_port or REDIS_PORT
+
         self.redis_client = redis.Redis(
             host=redis_host,
             port=redis_port,
@@ -24,31 +43,33 @@ class TimestampProducer:
 
     def publish_timestamp(self):
         """
-        Publish the current timestamp to the Redis server.
+        Publish current timestamp to Redis.
 
-        :return: None
-        - Retrieves the current time in seconds since the epoch.
-        - Stores the timestamp in Redis with the key 'current_timestamp'.
-        - Prints the published timestamp to the console.
+        Actions:
+        - Retrieve current Unix timestamp
+        - Store timestamp in Redis
+        - Print published timestamp to console
         """
         current_timestamp = int(time.time())
-        self.redis_client.set('current_timestamp', str(current_timestamp))
+        self.redis_client.set(TIMESTAMP_KEY, str(current_timestamp))
         print(f"Published timestamp: {current_timestamp}")
 
 
 def run_producer():
     """
-    Initialize the TimestampProducer and schedule regular timestamp publishing.
+    Initialize and run timestamp producer.
 
-    :return: None
-    - Instantiates the TimestampProducer.
-    - Publishes a timestamp immediately.
-    - Schedules the publish_timestamp method to run every 5 seconds.
-    - Continuously checks and runs any pending scheduled tasks.
+    Workflow:
+    - Create TimestampProducer instance
+    - Publish initial timestamp
+    - Schedule periodic timestamp publishing
+    - Continuously run scheduled tasks
     """
     producer = TimestampProducer()
     producer.publish_timestamp()  # Publish immediately on startup
-    schedule.every(5).seconds.do(producer.publish_timestamp)
+
+    # Schedule timestamp publishing based on environment interval
+    schedule.every(SCHEDULE_INTERVAL).seconds.do(producer.publish_timestamp)
 
     while True:
         schedule.run_pending()

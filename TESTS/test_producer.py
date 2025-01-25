@@ -4,11 +4,11 @@
 
 import os
 import sys
-from unittest.mock import patch
-
-from Producer.producer import TimestampProducer
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from unittest.mock import patch
+from Producer.producer import TimestampProducer
 
 # Constants
 REDIS_MODULE = 'redis.Redis'

@@ -4,12 +4,14 @@
 
 import pytest
 from unittest.mock import patch
-from Consumer.consumer import TimestampConsumer, TimestampResponse, HTTPException
-
 import sys
 import os
-
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from Consumer.consumer import TimestampConsumer, TimestampResponse, HTTPException
+
+
+
 
 # Constants for test values
 TEST_TIMESTAMP = 1640995200

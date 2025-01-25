@@ -2,8 +2,7 @@ services:
   redis:
     image: redis:latest
     ports:
-      - "6379:6379"
-
+      - "${REDIS_PORT}:${REDIS_PORT}"
   producer:
     build:
       context: .
@@ -21,6 +20,6 @@ services:
       - redis
       - producer
     ports:
-      - "8000:8000"
+      - "${LOCAL_PORT}:${LOCAL_PORT}"
     environment:
       - REDIS_HOST=redis
